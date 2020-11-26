@@ -1,0 +1,17 @@
+### web
+server:
+  port: 8086
+spring:
+  freemarker:
+    request-context-attribute: request
+    cache: false
+    templateEncoding: UTF-8
+    templateLoaderPath: classpath:/templates/
+    suffix: .ftl
+    content-type: text/html
+
+  ### resource (default: /**  + classpath:/static/ )
+  mvc:
+    static-path-pattern: /static/**
+  resources:
+    static-locations: classpath:/static/
