@@ -37,12 +37,12 @@ public class BaseModel {
     /**
      * 创建人编码
      */
-    @ApiModelProperty(value = "创建人编码")
+    @ApiModelProperty(value = "创建人id")
     private String createUser;
     /**
      * 修改人编码
      */
-    @ApiModelProperty(value = "修改人编码")
+    @ApiModelProperty(value = "修改人id")
     private String updateUser;
     /**
      * 删除标记(1 删除 0未删除)
@@ -50,9 +50,5 @@ public class BaseModel {
     @ApiModelProperty(value = "删除标记(1 删除 0未删除)")
     @TableLogic
     private Integer deleteFlag;
-    /**
-     * 启用标记(1 禁用 0启用)
-     */
-    @ApiModelProperty(value = "启用标记(1 禁用 0启用)")
-    private Integer disableFlag;
+
 }
