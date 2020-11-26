@@ -11,5 +11,12 @@
 
     <artifactId>mi-springboot-mapper</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.yisu</groupId>
+            <artifactId>mi-springboot-model</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

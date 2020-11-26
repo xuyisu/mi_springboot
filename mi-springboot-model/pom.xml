@@ -11,5 +11,12 @@
 
     <artifactId>mi-springboot-model</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.yisu</groupId>
+            <artifactId>mi-springboot-common</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
