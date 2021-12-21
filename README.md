@@ -17,7 +17,9 @@
 
 ## 后端运行先配置数据库（mysql 和redis）
 
-代码地址: https://gitee.com/gitxys/mi_springboot
+[代码地址Gitee](https://gitee.com/gitxys/mi_springboot)
+
+[代码地址GitHub](https://github.com/xuyisu/mi_springboot)
 
 ```
 server:
@@ -92,6 +94,10 @@ public class UserApplication {
 ## 前端启动
 
 项目地址https://gitee.com/gitxys/mi_vue
+
+[代码地址Gitee](https://gitee.com/gitxys/mi_vue)
+
+[代码地址GitHub](https://github.com/xuyisu/mi_vue)
 
 控制台先安装依赖包
 
