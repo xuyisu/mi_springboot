@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yisu.mapper.CartMapper">
+
+    <resultMap id="Cart" type="com.yisu.model.Cart" >
+        <result column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_user" property="createUser" />
+        <result column="update_user" property="updateUser" />
+        <result column="delete_flag" property="deleteFlag" />
+        <result column="user_id" property="userId" />
+        <result column="activity_id" property="activityId" />
+        <result column="activity_name" property="activityName" />
+        <result column="product_id" property="productId" />
+        <result column="product_name" property="productName" />
+        <result column="product_main_image" property="productMainImage" />
+        <result column="quantity" property="quantity" />
+        <result column="current_unit_price" property="currentUnitPrice" />
+        <result column="total_price" property="totalPrice" />
+        <result column="selected" property="selected" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,
+        `create_time`,
+        `update_time`,
+        `create_user`,
+        `update_user`,
+        `delete_flag`,
+        `user_id`,
+        `activity_id`,
+        `activity_name`,
+        `product_id`,
+        `product_name`,
+        `product_main_image`,
+        `quantity`,
+        `current_unit_price`,
+        `total_price`,
+        `selected`
+    </sql>
+
+
+
+</mapper>

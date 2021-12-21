@@ -13,8 +13,7 @@
         <module>mi-springboot-mapper</module>
         <module>mi-springboot-common</module>
         <module>mi-springboot-service</module>
-        <module>mi-springboot-controller</module>
-        <module>mi-springboot-generator</module>
+        <module>mi-springboot-facade</module>
     </modules>
 
 
