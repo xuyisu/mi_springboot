@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yisu.common.core.result.FwResult;
+import com.yisu.config.AuthUser;
 import com.yisu.model.UserAddress;
 import com.yisu.service.UserAddressService;
 import io.swagger.annotations.Api;
@@ -42,6 +43,8 @@ public class UserAddressController {
     @PostMapping("/add")
     public FwResult<Boolean> addAddress(@RequestBody @Valid UserAddress address) {
         address.setAddressId(IdUtil.getSnowflake(1L,1L).nextId());
+        address.setCreateUser(AuthUser.getUserId().toString());
+        address.setUpdateUser(AuthUser.getUserId().toString());
         userAddressService.save(address);
         return FwResult.ok();
     }
@@ -73,6 +76,7 @@ public class UserAddressController {
     @ApiOperation("地址更新")
     @PutMapping("/update")
     public FwResult<Boolean> updateAddress(@RequestBody @Valid UserAddress address) {
+        address.setUpdateUser(AuthUser.getUserId().toString());
         boolean update = userAddressService.updateById(address);
         if(update) {
             return FwResult.ok();

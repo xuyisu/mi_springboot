@@ -1,12 +1,15 @@
 package com.yisu.config.interceptor;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.yisu.common.core.config.RedisUtils;
 import com.yisu.common.core.constant.FwConstants;
 import com.yisu.common.core.exception.TokenCheckException;
+import com.yisu.config.AuthUser;
 import com.yisu.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -29,6 +32,11 @@ public class TokenInterceptor implements HandlerInterceptor {
         if(StringUtils.isEmpty(res)){
             throw new TokenCheckException("铁子,请先登录再购买");
         }
+        AuthUser.set(JSON.parseObject(res, User.class));
         return true;
     }
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
+        AuthUser.remove();
+    }
+
 }

@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yisu.common.core.enums.SelectedEnum;
 import com.yisu.common.core.enums.StatusEnum;
 import com.yisu.common.core.result.FwResult;
+import com.yisu.config.AuthUser;
 import com.yisu.model.Activity;
 import com.yisu.model.Cart;
 import com.yisu.model.Category;
@@ -26,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -73,7 +75,8 @@ public class CartController {
         if (ObjectUtil.isNull(cart)) {
             cart = new Cart();
             cart.setActivityId(product.getActivityId());
-
+            cart.setUserId(AuthUser.getUserId());
+            cart.setCreateUser(AuthUser.getUserId().toString());
             Activity activityParam = new Activity();
             activityParam.setActivityId(product.getActivityId());
             activityParam.setStatus(StatusEnum.ENABLE.getValue());
@@ -96,6 +99,7 @@ public class CartController {
             cartService.save(cart);
         } else {
             cart.setUpdateTime(null);
+            cart.setUpdateUser(AuthUser.getUserId().toString());
             cart.setQuantity(cart.getQuantity() + 1);
             BigDecimal quantity = new BigDecimal(String.valueOf(cart.getQuantity()));
             cart.setProductTotalPrice(product.getPrice().multiply(quantity));
@@ -135,6 +139,8 @@ public class CartController {
         BigDecimal quantity = new BigDecimal(String.valueOf(cart.getQuantity()));
         cart.setProductTotalPrice(product.getPrice().multiply(quantity));
         cart.setSelected(cartCountChangeReq.getSelected());
+        cart.setUpdateUser(AuthUser.getUserId().toString());
+        cart.setUpdateTime(new Date());
         cartService.updateById(cart);
         return FwResult.ok();
     }
@@ -151,7 +157,6 @@ public class CartController {
         if(ObjectUtil.isNull(cart)){
             return FwResult.failedMsg("购物车已不存在该商品");
         }
-
         cartService.removeById(cart.getId());
         return FwResult.ok();
     }
@@ -163,11 +168,13 @@ public class CartController {
         //查询商品是否已添加
         Cart cartParam = new Cart();
         //获取当前用户
-        cartParam.setUserId(0L);
+        cartParam.setUserId(AuthUser.getUserId());
         List<Cart> cartList = cartService.list(Wrappers.query(cartParam));
         if(CollectionUtil.isNotEmpty(cartList)){
             for (Cart cart:cartList) {
                 cart.setSelected(SelectedEnum.SELECTED.getValue());
+                cart.setUpdateUser(AuthUser.getUserId().toString());
+                cart.setUpdateTime(new Date());
             }
         }
 
@@ -182,11 +189,13 @@ public class CartController {
         //查询商品是否已添加
         Cart cartParam = new Cart();
         //获取当前用户
-        cartParam.setUserId(0L);
+        cartParam.setUserId(AuthUser.getUserId());
         List<Cart> cartList = cartService.list(Wrappers.query(cartParam));
         if(CollectionUtil.isNotEmpty(cartList)){
             for (Cart cart:cartList) {
                 cart.setSelected(SelectedEnum.UN_SELECTED.getValue());
+                cart.setUpdateUser(AuthUser.getUserId().toString());
+                cart.setUpdateTime(new Date());
             }
         }
 

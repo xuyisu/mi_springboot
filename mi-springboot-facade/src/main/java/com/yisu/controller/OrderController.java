@@ -13,6 +13,7 @@ import com.yisu.common.core.enums.PayTypeEnum;
 import com.yisu.common.core.enums.SelectedEnum;
 import com.yisu.common.core.enums.StatusEnum;
 import com.yisu.common.core.result.FwResult;
+import com.yisu.config.AuthUser;
 import com.yisu.model.*;
 import com.yisu.request.PayReq;
 import com.yisu.service.*;
@@ -106,7 +107,7 @@ public class OrderController {
         }
         //从购物车获取商品
         Cart cartParam = new Cart();
-        cartParam.setUserId(0L);
+        cartParam.setUserId(AuthUser.getUserId());
         cartParam.setSelected(SelectedEnum.SELECTED.getValue());
         List<Cart> cartList = cartService.list(Wrappers.query(cartParam));
         String orderNo = String.valueOf(System.currentTimeMillis() / 1000); //真实需要自己改造
@@ -153,7 +154,8 @@ public class OrderController {
             orderDetail.setStatus(OrderStatusEnum.UN_PAY.getValue());
             orderDetail.setStatusDesc(OrderStatusEnum.UN_PAY.getDesc());
             orderDetail.setTotalPrice(cart.getProductTotalPrice());
-            orderDetail.setUserId(FwConstants.UserIid);
+            orderDetail.setUserId(AuthUser.getUserId());
+            orderDetail.setCreateUser(AuthUser.getUserId().toString());
             orderDetailList.add(orderDetail);
             totalOrderProce = totalOrderProce.add(orderDetail.getTotalPrice());
             //删除购物车数据
@@ -175,6 +177,7 @@ public class OrderController {
         order.setStreet(userAddress.getStreet());
         order.setStatus(OrderStatusEnum.UN_PAY.getValue());
         order.setStatusDesc(OrderStatusEnum.UN_PAY.getDesc());
+        order.setCreateUser(AuthUser.getUserId().toString());
         if (CollectionUtil.isNotEmpty(orderDetailList)) {
             orderService.save(order);
             orderDetailService.saveBatch(orderDetailList);
@@ -191,7 +194,7 @@ public class OrderController {
         orderParam.setOrderNo(orderNo);
         Order order = orderService.getOne(Wrappers.query(orderParam));
         if (ObjectUtil.isNotEmpty(order)) {
-            if(!order.getUserId().equals(FwConstants.UserIid)){
+            if(!order.getUserId().equals(AuthUser.getUserId())){
                 return FwResult.failedMsg("您无权查询他人订单");
             }
             OrderVo orderVo=new OrderVo();
@@ -224,7 +227,7 @@ public class OrderController {
         orderParam.setOrderNo(payReq.getOrderNo());
         Order order = orderService.getOne(Wrappers.query(orderParam));
         if (ObjectUtil.isNotEmpty(order)) {
-            if(!order.getUserId().equals(FwConstants.UserIid)){
+            if(!order.getUserId().equals(AuthUser.getUserId())){
                 return FwResult.failedMsg("您无权查询他人订单");
             }
             if(!order.getStatus().equals(OrderStatusEnum.UN_PAY.getValue())){
@@ -263,7 +266,7 @@ public class OrderController {
         orderParam.setOrderNo(orderNo);
         Order order = orderService.getOne(Wrappers.query(orderParam));
         if (ObjectUtil.isNotEmpty(order)) {
-            if(!order.getUserId().equals(FwConstants.UserIid)){
+            if(!order.getUserId().equals(AuthUser.getUserId())){
                 return FwResult.failedMsg("您无权查询他人订单");
             }
             if(!order.getStatus().equals(OrderStatusEnum.UN_PAY.getValue())){
@@ -271,6 +274,7 @@ public class OrderController {
             }
             orderParam.setOrderNo(null);
             orderParam.setId(order.getId());
+            orderParam.setUpdateUser(AuthUser.getUserId().toString());
             orderParam.setStatus(OrderStatusEnum.CANCEL.getValue());
             orderParam.setStatusDesc(OrderStatusEnum.CANCEL.getDesc());
             orderService.updateById(orderParam);
@@ -284,6 +288,7 @@ public class OrderController {
                     OrderDetail orderDetailUpdate=new OrderDetail();
                     orderDetailUpdate.setStatus(OrderStatusEnum.CANCEL.getValue());
                     orderDetailUpdate.setStatusDesc(OrderStatusEnum.CANCEL.getDesc());
+                    orderDetailUpdate.setUpdateUser(AuthUser.getUserId().toString());
                     orderDetailUpdate.setId(orderDetail.getId());
                     orderDetailService.updateById(orderDetailUpdate);
                 }
