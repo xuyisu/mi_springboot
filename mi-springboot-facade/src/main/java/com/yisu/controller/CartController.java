@@ -4,16 +4,13 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yisu.common.core.enums.SelectedEnum;
 import com.yisu.common.core.enums.StatusEnum;
 import com.yisu.common.core.result.FwResult;
-import com.yisu.config.AuthUser;
+import com.yisu.service.config.AuthUser;
 import com.yisu.model.Activity;
 import com.yisu.model.Cart;
-import com.yisu.model.Category;
 import com.yisu.model.Product;
 import com.yisu.request.CartCountChangeReq;
 import com.yisu.service.ActivityService;
@@ -23,7 +20,6 @@ import com.yisu.vo.CartVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -71,6 +67,7 @@ public class CartController {
         //查询商品是否已添加
         Cart cartParam = new Cart();
         cartParam.setProductId(param.getProductId());
+        cartParam.setUserId(AuthUser.getUserId());
         Cart cart = cartService.getOne(Wrappers.query(cartParam));
         if (ObjectUtil.isNull(cart)) {
             cart = new Cart();
@@ -210,7 +207,7 @@ public class CartController {
         //查询商品是否已添加
         Cart cartParam = new Cart();
         //获取当前用户
-        cartParam.setUserId(0L);
+        cartParam.setUserId(AuthUser.getUserId());
         int cartSum = cartService.count(Wrappers.query(cartParam));
 
         return FwResult.ok(cartSum);

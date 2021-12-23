@@ -7,13 +7,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yisu.common.core.constant.FwConstants;
 import com.yisu.common.core.enums.OrderStatusEnum;
 import com.yisu.common.core.enums.PayTypeEnum;
 import com.yisu.common.core.enums.SelectedEnum;
 import com.yisu.common.core.enums.StatusEnum;
 import com.yisu.common.core.result.FwResult;
-import com.yisu.config.AuthUser;
+import com.yisu.service.config.AuthUser;
 import com.yisu.model.*;
 import com.yisu.request.PayReq;
 import com.yisu.service.*;
@@ -58,7 +57,9 @@ public class OrderController {
     @ApiOperation("订单列表")
     @GetMapping("/pages")
     public FwResult<IPage<OrderVo>> pages(Page page){
-        QueryWrapper<Order> queryWrapper = Wrappers.query(new Order()).orderByDesc("update_time");
+        Order orderParam = new Order();
+        orderParam.setUserId(AuthUser.getUserId());
+        QueryWrapper<Order> queryWrapper = Wrappers.query(orderParam).orderByDesc("update_time");
         IPage data = orderService.page(page,queryWrapper);
         List<Order> records = data.getRecords();
         List<OrderVo> orderVoList=new ArrayList<>();
@@ -178,6 +179,7 @@ public class OrderController {
         order.setStatus(OrderStatusEnum.UN_PAY.getValue());
         order.setStatusDesc(OrderStatusEnum.UN_PAY.getDesc());
         order.setCreateUser(AuthUser.getUserId().toString());
+        order.setUserId(AuthUser.getUserId());
         if (CollectionUtil.isNotEmpty(orderDetailList)) {
             orderService.save(order);
             orderDetailService.saveBatch(orderDetailList);

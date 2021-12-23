@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yisu.common.core.result.FwResult;
-import com.yisu.config.AuthUser;
+import com.yisu.service.config.AuthUser;
 import com.yisu.model.UserAddress;
 import com.yisu.service.UserAddressService;
 import io.swagger.annotations.Api;

@@ -1,12 +1,11 @@
 package com.yisu.config.interceptor;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.yisu.common.core.config.RedisUtils;
 import com.yisu.common.core.constant.FwConstants;
 import com.yisu.common.core.exception.TokenCheckException;
-import com.yisu.config.AuthUser;
+import com.yisu.service.config.AuthUser;
 import com.yisu.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;

@@ -1,10 +1,13 @@
 package com.yisu.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yisu.mapper.CartMapper;
 import com.yisu.model.Cart;
 import com.yisu.service.CartService;
+import com.yisu.service.config.AuthUser;
 import com.yisu.vo.CartVo;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements CartService {
     @Override
     public CartVo getCartList() {
-        List<Cart> carts = this.list();
+        Cart cartParam = new Cart();
+        cartParam.setUserId(AuthUser.getUserId());
+        List<Cart> carts = this.list(Wrappers.query(cartParam));
         if(CollectionUtil.isEmpty(carts)){
             return null;
         }else{

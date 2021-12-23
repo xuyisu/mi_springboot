@@ -1,4 +1,4 @@
-package com.yisu.config;
+package com.yisu.service.config;
 
 import com.yisu.common.core.exception.TokenCheckException;
 import com.yisu.model.User;
