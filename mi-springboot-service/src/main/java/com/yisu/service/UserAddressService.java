@@ -1,6 +1,7 @@
 package com.yisu.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yisu.common.core.result.FwResult;
 import com.yisu.model.UserAddress;
 
 /**
@@ -11,5 +12,11 @@ import com.yisu.model.UserAddress;
 public interface UserAddressService extends IService<UserAddress> {
 
 
+    FwResult<Boolean> add(UserAddress address);
 
+    FwResult<UserAddress> getAddressDetail(Long addressId);
+
+    FwResult<Boolean> delete(Long addressId);
+
+    FwResult<Boolean> updateAddress(UserAddress address);
 }

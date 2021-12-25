@@ -205,7 +205,7 @@ CREATE TABLE `order_status_record`  (
   `create_time` datetime(0) NOT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `order_no` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '订单编号',
   `order_detail_no` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '订单明细编号',
-  `product_id` int(11) NOT NULL DEFAULT 0 COMMENT '商品id',
+  `product_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '商品id',
   `product_name` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '商品名称',
   `status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '订单状态',
   `status_desc` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '状态描述',

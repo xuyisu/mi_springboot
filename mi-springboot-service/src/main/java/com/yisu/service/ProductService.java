@@ -1,6 +1,7 @@
 package com.yisu.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yisu.common.core.result.FwResult;
 import com.yisu.model.Product;
 
 /**
@@ -11,5 +12,5 @@ import com.yisu.model.Product;
 public interface ProductService extends IService<Product> {
 
 
-
+    FwResult<Product> getProductDetail(Long productId);
 }

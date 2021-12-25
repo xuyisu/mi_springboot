@@ -1,12 +1,9 @@
 package com.yisu.controller;
 
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yisu.common.core.result.FwResult;
-import com.yisu.service.config.AuthUser;
 import com.yisu.model.UserAddress;
 import com.yisu.service.UserAddressService;
 import io.swagger.annotations.Api;
@@ -42,46 +39,25 @@ public class UserAddressController {
     @ApiOperation("地址添加")
     @PostMapping("/add")
     public FwResult<Boolean> addAddress(@RequestBody @Valid UserAddress address) {
-        address.setAddressId(IdUtil.getSnowflake(1L,1L).nextId());
-        address.setCreateUser(AuthUser.getUserId().toString());
-        address.setUpdateUser(AuthUser.getUserId().toString());
-        userAddressService.save(address);
-        return FwResult.ok();
+        return userAddressService.add(address);
     }
 
     @ApiOperation("地址详情")
     @GetMapping("/{addressId}")
     public FwResult<UserAddress> getAddressDetail(@PathVariable Long addressId) {
-        UserAddress userAddress = new UserAddress();
-        userAddress.setAddressId(addressId);
-        UserAddress addressDetail = userAddressService.getOne(Wrappers.query(userAddress));
-        if (ObjectUtil.isNull(addressDetail)) {
-            return FwResult.failedMsg("当前地址不存在，请重新添加");
-        }
-        return FwResult.ok(addressDetail);
+        return userAddressService.getAddressDetail(addressId);
     }
 
     @ApiOperation("地址删除")
     @DeleteMapping("/{addressId}")
     public FwResult<Boolean> delete(@PathVariable Long addressId) {
-        UserAddress userAddress = new UserAddress();
-        userAddress.setAddressId(addressId);
-        UserAddress addressDetail = userAddressService.getOne(Wrappers.query(userAddress));
-        if (ObjectUtil.isNull(addressDetail)) {
-            return FwResult.failedMsg("当前地址不存在，请重新添加");
-        }
-        return FwResult.ok(userAddressService.removeById(addressDetail.getId()));
+        return userAddressService.delete(addressId);
     }
 
     @ApiOperation("地址更新")
     @PutMapping("/update")
     public FwResult<Boolean> updateAddress(@RequestBody @Valid UserAddress address) {
-        address.setUpdateUser(AuthUser.getUserId().toString());
-        boolean update = userAddressService.updateById(address);
-        if(update) {
-            return FwResult.ok();
-        }
-        return FwResult.failedMsg("更新地址失败");
+        return userAddressService.updateAddress(address);
     }
 
 }

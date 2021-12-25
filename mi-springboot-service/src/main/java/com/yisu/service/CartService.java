@@ -1,7 +1,10 @@
 package com.yisu.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yisu.common.core.result.FwResult;
 import com.yisu.model.Cart;
+import com.yisu.model.Product;
+import com.yisu.request.CartCountChangeReq;
 import com.yisu.vo.CartVo;
 
 /**
@@ -17,4 +20,15 @@ public interface CartService extends IService<Cart> {
      */
     CartVo getCartList();
 
+    FwResult<Integer> add(Product param);
+
+    FwResult<String> updateCount(Long productId, CartCountChangeReq cartCountChangeReq);
+
+    FwResult<String> deleteByProductId(Long productId);
+
+    FwResult<String> selectAll();
+
+    FwResult<String> unSelectAll();
+
+    FwResult<Integer> sum();
 }

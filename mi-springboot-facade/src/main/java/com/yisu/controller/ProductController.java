@@ -1,7 +1,5 @@
 package com.yisu.controller;
 
-import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -39,13 +37,7 @@ public class ProductController {
     @ApiOperation("商品详情")
     @GetMapping("/{productId}")
     public FwResult<Product> getProductDetail(@PathVariable Long productId){
-        Product product =new Product();
-        product.setProductId(productId);
-        Product productDetail = productService.getOne(Wrappers.query(product));
-        if(ObjectUtil.isNull(productDetail)){
-            return FwResult.failedMsg("该商品已下架或删除");
-        }
-        return FwResult.ok(productDetail);
+        return productService.getProductDetail(productId);
     }
 
 }
