@@ -55,9 +55,9 @@ public class UserAddressController {
     }
 
     @ApiOperation("地址更新")
-    @PutMapping("/update")
-    public FwResult<Boolean> updateAddress(@RequestBody @Valid UserAddress address) {
-        return userAddressService.updateAddress(address);
+    @PutMapping("/{addressId}")
+    public FwResult<Boolean> updateAddress(@PathVariable Long addressId,@RequestBody @Valid UserAddress address) {
+        return userAddressService.updateAddress(addressId,address);
     }
 
 }

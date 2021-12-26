@@ -37,6 +37,7 @@ public class OrderController {
     public FwResult<String> create(@RequestBody UserAddress address) {
         return orderService.create(address);
     }
+
     @ApiOperation("订单详情")
     @GetMapping("/{orderNo}")
     public FwResult<OrderVo> getOrderDetail(@PathVariable String orderNo) {

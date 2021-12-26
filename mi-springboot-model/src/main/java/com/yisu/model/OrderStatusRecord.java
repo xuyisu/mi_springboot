@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
+
 /**
  * @description 订单记录-实体
  * @author xuyisu
@@ -14,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @TableName("order_status_record")
 @EqualsAndHashCode(callSuper=false)
-public class OrderStatusRecord extends BaseModel {
+public class OrderStatusRecord{
 
     /**
      * 订单编号
@@ -30,7 +32,7 @@ public class OrderStatusRecord extends BaseModel {
      * 商品id
      */
     @ApiModelProperty(value = "商品id")
-    private Integer productId;
+    private Long productId;
     /**
      * 商品名称
      */
@@ -46,4 +48,10 @@ public class OrderStatusRecord extends BaseModel {
      */
     @ApiModelProperty(value = "状态描述")
     private String statusDesc;
+
+    /**
+     * 创建时间
+     */
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
 }

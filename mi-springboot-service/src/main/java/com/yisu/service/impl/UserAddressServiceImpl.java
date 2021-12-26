@@ -51,8 +51,15 @@ public class UserAddressServiceImpl extends ServiceImpl<UserAddressMapper, UserA
     }
 
     @Override
-    public FwResult<Boolean> updateAddress(UserAddress address) {
+    public FwResult<Boolean> updateAddress(Long addressId,UserAddress address) {
+        UserAddress userAddress = new UserAddress();
+        userAddress.setAddressId(addressId);
+        UserAddress addressDetail = this.getOne(Wrappers.query(userAddress));
+        if (ObjectUtil.isNull(addressDetail)) {
+            return FwResult.failedMsg("当前地址不存在，请重新添加");
+        }
         address.setUpdateUser(AuthUser.getUserId().toString());
+        address.setId(addressDetail.getId());
         boolean update = this.updateById(address);
         if(update) {
             return FwResult.ok();

@@ -18,5 +18,5 @@ public interface UserAddressService extends IService<UserAddress> {
 
     FwResult<Boolean> delete(Long addressId);
 
-    FwResult<Boolean> updateAddress(UserAddress address);
+    FwResult<Boolean> updateAddress(Long addressId,UserAddress address);
 }

@@ -10,7 +10,12 @@ import com.yisu.model.Activity;
  */
 public interface ActivityService extends IService<Activity> {
 
-
+    /**
+     * 获取欧东信息
+     * @param activityId
+     * @return
+     */
+    Activity getActivityByActivityId(Long activityId);
 
 }
 

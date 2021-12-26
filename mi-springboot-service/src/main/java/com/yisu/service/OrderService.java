@@ -17,13 +17,38 @@ import com.yisu.vo.OrderVo;
 public interface OrderService extends IService<Order> {
 
 
+    /**
+     * 分页查询订单
+     * @param page
+     * @return
+     */
     FwResult<IPage<OrderVo>> pages(Page page);
 
+    /**
+     * 创建订单
+     * @param address
+     * @return
+     */
     FwResult<String> create(UserAddress address);
 
+    /**
+     * 查询订单明细
+     * @param orderNo
+     * @return
+     */
     FwResult<OrderVo> getOrderDetail(String orderNo);
 
+    /**
+     * 订单付款
+     * @param payReq
+     * @return
+     */
     FwResult<OrderVo> pay(PayReq payReq);
 
+    /**
+     * 取消订单
+     * @param orderNo
+     * @return
+     */
     FwResult<OrderVo> cancel(String orderNo);
 }

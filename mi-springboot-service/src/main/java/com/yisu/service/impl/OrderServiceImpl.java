@@ -1,7 +1,6 @@
 package com.yisu.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -38,6 +37,7 @@ import java.util.List;
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
 
+    public static final int ZERO = 0;
     @Autowired
     private UserAddressService userAddressService;
     @Autowired
@@ -50,6 +50,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Autowired
     private ActivityService activityService;
 
+    @Autowired
+    private OrderStatusRecordService orderStatusRecordService;
+
     @Override
     public FwResult<IPage<OrderVo>> pages(Page page) {
         Order orderParam = new Order();
@@ -60,23 +63,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         List<OrderVo> orderVoList=new ArrayList<>();
         if(CollectionUtil.isNotEmpty(records)){
             for (Order order:records ) {
-                OrderVo orderVo=new OrderVo();
-                BeanUtils.copyProperties(order,orderVo);
-                //查询订单明细
-                OrderDetail orderDetail=new OrderDetail();
-                orderDetail.setOrderNo(order.getOrderNo());
-                List<OrderDetail> orderDetails = orderDetailService.list(Wrappers.query(orderDetail));
-                if(CollectionUtil.isNotEmpty(orderDetails)){
-                    List<OrderDetailVo> orderDetailVoList=new ArrayList<>();
-                    for (OrderDetail orderDetail1:orderDetails) {
-                        OrderDetailVo orderDetailVo=new OrderDetailVo();
-                        BeanUtils.copyProperties(orderDetail1,orderDetailVo);
-                        orderDetailVoList.add(orderDetailVo);
-                    }
-                    if(CollectionUtil.isNotEmpty(orderDetailVoList)) {
-                        orderVo.setDetails(orderDetailVoList);
-                    }
-                }
+                OrderVo orderVo = buildOrderVo(order);
                 orderVoList.add(orderVo);
             }
             if(CollectionUtil.isNotEmpty(orderVoList)){
@@ -86,6 +73,32 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         }
         return FwResult.ok();
+    }
+
+    /**
+     * 构建Order 返回类
+     * @param order
+     * @return
+     */
+    private OrderVo buildOrderVo(Order order) {
+        OrderVo orderVo = new OrderVo();
+        BeanUtils.copyProperties(order, orderVo);
+        //查询订单明细
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setOrderNo(order.getOrderNo());
+        List<OrderDetail> orderDetails = orderDetailService.list(Wrappers.query(orderDetail));
+        if (CollectionUtil.isNotEmpty(orderDetails)) {
+            List<OrderDetailVo> orderDetailVoList = new ArrayList<>();
+            for (OrderDetail orderDetail1 : orderDetails) {
+                OrderDetailVo orderDetailVo = new OrderDetailVo();
+                BeanUtils.copyProperties(orderDetail1, orderDetailVo);
+                orderDetailVoList.add(orderDetailVo);
+            }
+            if (CollectionUtil.isNotEmpty(orderDetailVoList)) {
+                orderVo.setDetails(orderDetailVoList);
+            }
+        }
+        return orderVo;
     }
 
     @Override
@@ -105,12 +118,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         cartParam.setSelected(SelectedEnum.SELECTED.getValue());
         List<Cart> cartList = cartService.list(Wrappers.query(cartParam));
         String orderNo = String.valueOf(System.currentTimeMillis() / 1000); //真实需要自己改造
-        BigDecimal totalOrderPrice = new BigDecimal(0);
+        BigDecimal totalOrderPrice = new BigDecimal(ZERO);
         if (CollectionUtil.isEmpty(cartList)) {
             return FwResult.failedMsg("恭喜您的购物车已经被清空了，再加一车吧");
         }
 
         List<OrderDetail> orderDetailList = new ArrayList<>();
+        List<OrderStatusRecord> orderStatusRecordList = new ArrayList<>();
         //写订单明细表
         for (Cart cart : cartList) {
             //查询商品
@@ -118,44 +132,54 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             productParam.setProductId(cart.getProductId());
             productParam.setStatus(StatusEnum.ENABLE.getValue());
             QueryWrapper<Product> queryProduct = Wrappers.query(productParam);
-            queryProduct.gt("stock", 0);
+            queryProduct.gt("stock", ZERO);
             Product product = productService.getOne(queryProduct);
             if (ObjectUtil.isEmpty(product)) {
                 return FwResult.failedMsg("商品:" + cart.getProductName() + " 已售尽,请选择其它产品");
             }
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setCurrentUnitPrice(product.getPrice());
-            //获取活动信息
-            Activity activityParam = new Activity();
-            activityParam.setActivityId(product.getActivityId());
-            activityParam.setStatus(StatusEnum.ENABLE.getValue());
-            QueryWrapper<Activity> queryActivity = Wrappers.query(activityParam);
-            String date = DateUtil.today();
-            queryActivity.lt("start_time", date);
-            queryActivity.gt("end_time", date);
-            Activity activity = activityService.getOne(queryActivity);
-            if (ObjectUtil.isNotEmpty(activity)) {
-                orderDetail.setActivityId(activity.getActivityId());
-                orderDetail.setActivityName(activity.getName());
-                orderDetail.setActivityMainImage(activity.getMainImage());
-            }
-            orderDetail.setOrderDetailNo(String.valueOf(System.currentTimeMillis()));
-            orderDetail.setOrderNo(orderNo);
-            orderDetail.setProductId(product.getProductId());
-            orderDetail.setProductMainImage(product.getMainImage());
-            orderDetail.setProductName(product.getName());
-            orderDetail.setQuantity(cart.getQuantity());
-            orderDetail.setStatus(OrderStatusEnum.UN_PAY.getValue());
-            orderDetail.setStatusDesc(OrderStatusEnum.UN_PAY.getDesc());
-            orderDetail.setTotalPrice(cart.getProductTotalPrice());
-            orderDetail.setUserId(AuthUser.getUserId());
-            orderDetail.setCreateUser(AuthUser.getUserId().toString());
+            OrderDetail orderDetail = buildOrderDetail(orderNo, cart, product);
             orderDetailList.add(orderDetail);
             totalOrderPrice = totalOrderPrice.add(orderDetail.getTotalPrice());
             //删除购物车数据
-            this.removeById(cart.getId());
+            cartService.removeById(cart.getId());
+            //创建订单交易记录
+            OrderStatusRecord orderStatusRecord = buildOrderStatusRecord(orderDetail);
+            orderStatusRecordList.add(orderStatusRecord);
         }
         //写入订单主表
+        Order order = buildOrder(userAddress, orderNo, totalOrderPrice);
+        if (CollectionUtil.isNotEmpty(orderDetailList)) {
+            this.save(order);
+            orderDetailService.saveBatch(orderDetailList);
+            orderStatusRecordService.saveBatch(orderStatusRecordList);
+        }
+        return FwResult.ok(orderNo);
+    }
+
+    /**
+     * 构建订单交易记录
+     * @param orderDetail
+     * @return
+     */
+    private OrderStatusRecord buildOrderStatusRecord(OrderDetail orderDetail) {
+        OrderStatusRecord orderStatusRecord =new OrderStatusRecord();
+        orderStatusRecord.setOrderDetailNo(orderDetail.getOrderDetailNo());
+        orderStatusRecord.setOrderNo(orderDetail.getOrderDetailNo());
+        orderStatusRecord.setProductId(orderDetail.getProductId());
+        orderStatusRecord.setProductName(orderDetail.getProductName());
+        orderStatusRecord.setStatus(orderDetail.getStatus());
+        orderStatusRecord.setStatusDesc(orderDetail.getStatusDesc());
+        return orderStatusRecord;
+    }
+
+    /**
+     * 构建返回订单
+     * @param userAddress
+     * @param orderNo
+     * @param totalOrderPrice
+     * @return
+     */
+    private Order buildOrder(UserAddress userAddress, String orderNo, BigDecimal totalOrderPrice) {
         Order order = new Order();
         order.setOrderNo(orderNo);
         order.setAddressId(userAddress.getAddressId());
@@ -173,13 +197,38 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setStatusDesc(OrderStatusEnum.UN_PAY.getDesc());
         order.setCreateUser(AuthUser.getUserId().toString());
         order.setUserId(AuthUser.getUserId());
-        if (CollectionUtil.isNotEmpty(orderDetailList)) {
-            this.save(order);
-            orderDetailService.saveBatch(orderDetailList);
+        return order;
+    }
+
+    /**
+     * 构建订单明细
+     * @param orderNo
+     * @param cart
+     * @param product
+     * @return
+     */
+    private OrderDetail buildOrderDetail(String orderNo, Cart cart, Product product) {
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setCurrentUnitPrice(product.getPrice());
+        //获取活动信息
+        Activity activity = activityService.getActivityByActivityId(product.getActivityId());
+        if (ObjectUtil.isNotEmpty(activity)) {
+            orderDetail.setActivityId(activity.getActivityId());
+            orderDetail.setActivityName(activity.getName());
+            orderDetail.setActivityMainImage(activity.getMainImage());
         }
-
-
-        return FwResult.ok(orderNo);
+        orderDetail.setOrderDetailNo(String.valueOf(System.currentTimeMillis()));
+        orderDetail.setOrderNo(orderNo);
+        orderDetail.setProductId(product.getProductId());
+        orderDetail.setProductMainImage(product.getMainImage());
+        orderDetail.setProductName(product.getName());
+        orderDetail.setQuantity(cart.getQuantity());
+        orderDetail.setStatus(OrderStatusEnum.UN_PAY.getValue());
+        orderDetail.setStatusDesc(OrderStatusEnum.UN_PAY.getDesc());
+        orderDetail.setTotalPrice(cart.getProductTotalPrice());
+        orderDetail.setUserId(AuthUser.getUserId());
+        orderDetail.setCreateUser(AuthUser.getUserId().toString());
+        return orderDetail;
     }
 
     @Override
@@ -191,23 +240,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             if(!order.getUserId().equals(AuthUser.getUserId())){
                 return FwResult.failedMsg("您无权查询他人订单");
             }
-            OrderVo orderVo=new OrderVo();
-            BeanUtils.copyProperties(order,orderVo);
-            //查询订单明细
-            OrderDetail orderDetail=new OrderDetail();
-            orderDetail.setOrderNo(order.getOrderNo());
-            List<OrderDetail> orderDetails = orderDetailService.list(Wrappers.query(orderDetail));
-            if(CollectionUtil.isNotEmpty(orderDetails)){
-                List<OrderDetailVo> orderDetailVoList=new ArrayList<>();
-                for (OrderDetail orderDetail1:orderDetails) {
-                    OrderDetailVo orderDetailVo=new OrderDetailVo();
-                    BeanUtils.copyProperties(orderDetail1,orderDetailVo);
-                    orderDetailVoList.add(orderDetailVo);
-                }
-                if(CollectionUtil.isNotEmpty(orderDetailVoList)) {
-                    orderVo.setDetails(orderDetailVoList);
-                }
-            }
+            OrderVo orderVo = buildOrderVo(order);
             return FwResult.ok(orderVo);
         }
         return FwResult.ok();
@@ -243,6 +276,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                     orderDetailUpdate.setStatusDesc(OrderStatusEnum.PAY.getDesc());
                     orderDetailUpdate.setId(orderDetail.getId());
                     orderDetailService.updateById(orderDetailUpdate);
+                    OrderStatusRecord orderStatusRecord = buildOrderStatusRecord(orderDetail);
+                    orderStatusRecordService.save(orderStatusRecord);
                 }
             }
         }

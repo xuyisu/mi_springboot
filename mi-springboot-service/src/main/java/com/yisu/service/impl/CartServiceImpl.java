@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements CartService {
 
+    public static final int ONE = 1;
     @Autowired
     private ActivityService activityService;
     @Autowired
@@ -56,7 +57,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
             cartVo.setCartTotalQuantity(totalQuantity);
             AtomicReference<Boolean> selectAll= new AtomicReference<>(Boolean.TRUE);
             carts.stream().map(Cart::getSelected).forEach(e->{
-                if(e<1){
+                if(e< ONE){
                     selectAll.set(Boolean.FALSE);
                 }
             });
@@ -75,7 +76,6 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         if (ObjectUtil.isNull(product)) {
             return FwResult.failedMsg("当前商品已下架或删除");
         }
-
         //查询商品是否已添加
         Cart cartParam = new Cart();
         cartParam.setProductId(param.getProductId());
@@ -86,14 +86,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
             cart.setActivityId(product.getActivityId());
             cart.setUserId(AuthUser.getUserId());
             cart.setCreateUser(AuthUser.getUserId().toString());
-            Activity activityParam = new Activity();
-            activityParam.setActivityId(product.getActivityId());
-            activityParam.setStatus(StatusEnum.ENABLE.getValue());
-            QueryWrapper<Activity> queryActivity = Wrappers.query(activityParam);
-            String date = DateUtil.today();
-            queryActivity.lt("start_time", date);
-            queryActivity.gt("end_time", date);
-            Activity activity = activityService.getOne(queryActivity);
+            Activity activity = activityService.getActivityByActivityId(product.getActivityId());
             if(ObjectUtil.isNotEmpty(activity)) {
                 cart.setActivityName(activity.getName());
             }
@@ -102,20 +95,22 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
             cart.setProductUnitPrice(product.getPrice());
             cart.setProductMainImage(product.getMainImage());
             cart.setProductName(product.getName());
-            cart.setQuantity(1);
+            cart.setQuantity(ONE);
             BigDecimal quantity = new BigDecimal(String.valueOf(cart.getQuantity()));
             cart.setProductTotalPrice(cart.getProductUnitPrice().multiply(quantity));
             this.save(cart);
         } else {
             cart.setUpdateTime(null);
             cart.setUpdateUser(AuthUser.getUserId().toString());
-            cart.setQuantity(cart.getQuantity() + 1);
+            cart.setQuantity(cart.getQuantity() + ONE);
             BigDecimal quantity = new BigDecimal(String.valueOf(cart.getQuantity()));
             cart.setProductTotalPrice(product.getPrice().multiply(quantity));
             this.updateById(cart);
         }
         return this.sum();
     }
+
+
 
     @Override
     @Transactional
@@ -135,13 +130,13 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
             return FwResult.failedMsg("购物车已不存在该商品");
         }
         cart.setUpdateTime(null);
-        if(cartCountChangeReq.getType()==1){
-            cart.setQuantity(cart.getQuantity()+1);
+        if(cartCountChangeReq.getType()== ONE){
+            cart.setQuantity(cart.getQuantity()+ ONE);
         }else{
-            if(cart.getQuantity()<=1){
+            if(cart.getQuantity()<= ONE){
                 return FwResult.failedMsg("不能再减了,要减没了");
             }
-            cart.setQuantity(cart.getQuantity()-1);
+            cart.setQuantity(cart.getQuantity()- ONE);
         }
         BigDecimal quantity = new BigDecimal(String.valueOf(cart.getQuantity()));
         cart.setProductTotalPrice(product.getPrice().multiply(quantity));
