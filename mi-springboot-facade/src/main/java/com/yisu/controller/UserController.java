@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @RestController
 @Api(value = "用户信息")
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @Slf4j
 @Validated
 public class UserController {

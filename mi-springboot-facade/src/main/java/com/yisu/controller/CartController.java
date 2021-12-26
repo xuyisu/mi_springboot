@@ -33,7 +33,7 @@ import java.util.List;
  */
 @RestController
 @Api(value = "购物车")
-@RequestMapping("/cart")
+@RequestMapping("/api/cart")
 public class CartController {
 
     @Autowired

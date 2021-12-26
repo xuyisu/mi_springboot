@@ -21,7 +21,7 @@ import javax.validation.Valid;
  */
 @RestController
 @Api(value = "用户地址")
-@RequestMapping("/address")
+@RequestMapping("/api/address")
 @Validated
 public class UserAddressController {
 

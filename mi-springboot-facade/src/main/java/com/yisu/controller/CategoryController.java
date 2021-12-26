@@ -20,7 +20,7 @@ import java.util.List;
  */
 @RestController
 @Api(value = "类目")
-@RequestMapping("/category")
+@RequestMapping("/api/category")
 public class CategoryController {
 
     @Autowired

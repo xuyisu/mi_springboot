@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor())
-                .addPathPatterns("/cart/**","/order/**","/address/**","/user/getUser");
+                .addPathPatterns("/api/cart/**","/api/order/**","/api/address/**","/api/user/getUser");
     }
     @Bean
     public TokenInterceptor jwtInterceptor() {
