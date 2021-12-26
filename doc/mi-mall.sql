@@ -202,7 +202,7 @@ INSERT INTO `order_info` VALUES (12, '2021-11-27 17:56:11', '2021-11-27 17:56:14
 DROP TABLE IF EXISTS `order_status_record`;
 CREATE TABLE `order_status_record`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `create_time` datetime(0) NOT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `create_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `order_no` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '订单编号',
   `order_detail_no` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '订单明细编号',
   `product_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '商品id',
