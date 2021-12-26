@@ -277,6 +277,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                     orderDetailUpdate.setId(orderDetail.getId());
                     orderDetailService.updateById(orderDetailUpdate);
                     OrderStatusRecord orderStatusRecord = buildOrderStatusRecord(orderDetail);
+                    orderStatusRecord.setStatus(OrderStatusEnum.PAY.getValue());
+                    orderStatusRecord.setStatusDesc(OrderStatusEnum.PAY.getDesc());
                     orderStatusRecordService.save(orderStatusRecord);
                 }
             }
